@@ -177,16 +177,12 @@ async function generateInsuranceContract() {
 // 고객 정보를 블록체인에 기록하는 함수
 async function recordCustomerDataOnBlockchain(customerData) {
     try {
-        // 1. 고객 정보 입력
         console.log("고객 정보 입력:", customerData);
         showAlert("고객 정보 입력 완료", "info");
 
-        // 2. 블록체인에 기록하는 로직 (예: 스마트 계약 호출)
-        // 실제 블록체인 기록 로직은 여기에 추가
         console.log("블록체인에 기록 중...");
         showAlert("블록체인에 기록 중...", "warning");
 
-        // 3. 기록 완료 후 알림 표시
         // 예시로 2초 후에 기록 완료로 설정
         setTimeout(() => {
             console.log("블록체인에 기록 완료");
@@ -226,3 +222,14 @@ document.getElementById('connectWallet').onclick = connectWallet;
 document.getElementById('approveClaim').onclick = approveClaim;
 document.getElementById('executePayment').onclick = executePayment;
 document.getElementById('generateContract').onclick = generateInsuranceContract;
+
+// 폼 제출 시 고객 정보 블록체인 기록 함수 호출
+document.getElementById('customerForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const customerData = {
+        name: document.getElementById('name').value,
+        age: document.getElementById('age').value,
+        policyNumber: document.getElementById('policyNumber').value
+    };
+    recordCustomerDataOnBlockchain(customerData);
+});
