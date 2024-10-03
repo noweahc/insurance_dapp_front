@@ -170,7 +170,7 @@ async function generateInsuranceContract() {
         document.getElementById('contractResult').innerText = data.contract;
     } catch (error) {
         console.error('Error generating contract:', error);
-        document.getElementById('contractResult').innerText = '��약서 생성 중 오류가 발생했습니다.';
+        document.getElementById('contractResult').innerText = '약서 생성 중 오류가 발생했습니다.';
     }
 }
 
@@ -210,7 +210,7 @@ function showAlert(message, type) {
 
 // 폼 제출 시 고객 정보 블록체인 기록 함수 호출
 document.getElementById('customerForm').addEventListener('submit', (event) => {
-    event.preventDefault();
+    event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
     const customerData = {
         name: document.getElementById('name').value,
         age: document.getElementById('age').value,
