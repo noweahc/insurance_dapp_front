@@ -153,7 +153,7 @@ async function generateInsuranceContract() {
     };
 
     try {
-        const response = await fetch('https://insurance-dapp.onrender.com', {  // Render 배포 URL로 변경
+        const response = await fetch('https://insurance-dapp-backend.onrender.com', {  // Render 배포 URL로 변경
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
