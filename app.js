@@ -144,16 +144,11 @@ async function executePayment() {
     }
 }
 
-// 보험 계약서 생성 함수 (Flask API 호출)
-async function generateInsuranceContract() {
-    const customerData = {
-        name: "John Doe",
-        age: 35,
-        insurance_type: "Life Insurance"
-    };
-
+// 보험 계약서 생성 함수
+async function generateInsuranceContract(customerData) {
     try {
-        const response = await fetch('https://insurance-dapp-backend.onrender.com', {  // Render 배포 URL로 변경
+        // 서버에 요청하여 보험 계약서 생성
+        const response = await fetch('/generate-contract', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -162,15 +157,15 @@ async function generateInsuranceContract() {
         });
 
         if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText}`);
+            throw new Error('보험 계약서 생성 중 오류 발생');
         }
 
         const data = await response.json();
-        console.log('Generated Contract:', data.contract);
-        document.getElementById('contractResult').innerText = data.contract;
+        return data.contract;
     } catch (error) {
-        console.error('Error generating contract:', error);
-        document.getElementById('contractResult').innerText = '약서 생성 중 오류가 발생했습니다.';
+        console.error("Error generating contract:", error);
+        showAlert("보험 계약서 생성 중 오류가 발생했습니다.", "danger");
+        return null;
     }
 }
 
@@ -183,12 +178,13 @@ async function recordCustomerDataOnBlockchain(customerData) {
         console.log("블록체인에 기록 중...");
         showAlert("블록체인에 기록 중...", "warning");
 
-        // 예시로 2초 후에 기록 완료로 설정
-        setTimeout(() => {
-            console.log("블록체인에 기록 완료");
+        // 보험 계약서 생성
+        const contract = await generateInsuranceContract(customerData);
+        if (contract) {
+            document.getElementById('contractResult').innerText = contract;
             showAlert("블록체인에 기록 완료", "success");
             document.getElementById('claimButton').disabled = false;
-        }, 2000);
+        }
     } catch (error) {
         console.error("Error recording on blockchain:", error);
         showAlert("블록체인 기록 중 오류가 발생했습니다.", "danger");
@@ -234,11 +230,10 @@ document.getElementById('connectWallet').addEventListener('click', () => {
 // 수수료 지불 버튼 클릭 시
 document.getElementById('payFee').addEventListener('click', () => {
     showAlert("수수료 지불 완료", "success");
-    document.getElementById('contractResult').innerText = "청구 보고서가 작성되었습니다.";
+    document.getElementById('contractResult').innerText += "\n청구 보고서가 작성되었습니다.";
 });
 
 // 버튼 클릭 이벤트 연결
 document.getElementById('connectWallet').onclick = connectWallet;
 document.getElementById('approveClaim').onclick = approveClaim;
 document.getElementById('executePayment').onclick = executePayment;
-document.getElementById('generateContract').onclick = generateInsuranceContract;
