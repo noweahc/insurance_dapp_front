@@ -89,23 +89,21 @@ const contractABI = [
 ];
 
 // MetaMask 연결 함수
-async function connectWallet() {
+async function connectMetaMask() {
     if (typeof window.ethereum !== 'undefined') {
         try {
-            await ethereum.request({ method: 'eth_requestAccounts' });
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            signer = provider.getSigner();
-            contract = new ethers.Contract(contractAddress, contractABI, signer);
-            console.log('Wallet connected:', await signer.getAddress());
-            alert('지갑이 성공적으로 연결되었습니다.');
+            // MetaMask 연결 요청
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            showAlert(`MetaMask 연결 성공: ${accounts[0]}`, "success");
+            return accounts[0];
         } catch (error) {
-            console.error('Error connecting wallet:', error);
-            alert('지갑 연결 중 오류가 발생했습니다.');
+            console.error("MetaMask 연결 오류:", error);
+            showAlert("MetaMask 연결 중 오류가 발생했습니다.", "danger");
         }
     } else {
-        console.log('MetaMask not found');
-        alert('MetaMask가 설치되어 있지 않습니다. 브라우저에 MetaMask를 설치해주세요.');
+        showAlert("MetaMask가 설치되어 있지 않습니다.", "danger");
     }
+    return null;
 }
 
 // 보험 청구 승인 함수 호출
@@ -147,7 +145,6 @@ async function executePayment() {
 // 보험 계약서 생성 함수
 async function generateInsuranceContract(customerData) {
     try {
-        // 서버에 요청하여 보험 계약서 생성
         const response = await fetch('/generate-contract', {
             method: 'POST',
             headers: {
@@ -175,10 +172,6 @@ async function recordCustomerDataOnBlockchain(customerData) {
         console.log("고객 정보 입력:", customerData);
         showAlert("고객 정보 입력 완료", "info");
 
-        console.log("블록체인에 기록 중...");
-        showAlert("블록체인에 기록 중...", "warning");
-
-        // 보험 계약서 생성
         const contract = await generateInsuranceContract(customerData);
         if (contract) {
             document.getElementById('contractResult').innerText = contract;
@@ -206,7 +199,7 @@ function showAlert(message, type) {
 
 // 폼 제출 시 고객 정보 블록체인 기록 함수 호출
 document.getElementById('customerForm').addEventListener('submit', (event) => {
-    event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
+    event.preventDefault();
     const customerData = {
         name: document.getElementById('name').value,
         age: document.getElementById('age').value,
@@ -222,16 +215,43 @@ document.getElementById('claimButton').addEventListener('click', () => {
 });
 
 // MetaMask 연결 버튼 클릭 시
-document.getElementById('connectWallet').addEventListener('click', () => {
-    showAlert("MetaMask 연결 중...", "info");
-    document.getElementById('payFee').disabled = false;
+document.getElementById('connectWallet').addEventListener('click', async () => {
+    const account = await connectMetaMask();
+    if (account) {
+        document.getElementById('payFee').disabled = false;
+    }
 });
 
 // 수수료 지불 버튼 클릭 시
-document.getElementById('payFee').addEventListener('click', () => {
-    showAlert("수수료 지불 완료", "success");
-    document.getElementById('contractResult').innerText += "\n청구 보고서가 작성되었습니다.";
+document.getElementById('payFee').addEventListener('click', async () => {
+    const account = await connectMetaMask();
+    if (account) {
+        await payFee(account);
+    }
 });
+
+// 수수료 지불 함수
+async function payFee(account) {
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        // 트랜잭션 설정
+        const tx = {
+            to: '0x701b8b98a44acfbaa8406f9d97003866280ff01d',
+            value: ethers.utils.parseEther("0.01") // 0.01 ETH 전송
+        };
+
+        // 트랜잭션 전송
+        const transaction = await signer.sendTransaction(tx);
+        await transaction.wait();
+        showAlert("수수료 지불 완료", "success");
+        document.getElementById('contractResult').innerText += "\n청구 보고서가 작성되었습니다.";
+    } catch (error) {
+        console.error("수수료 지불 오류:", error);
+        showAlert("수수료 지불 중 오류가 발생했습니다.", "danger");
+    }
+}
 
 // 버튼 클릭 이벤트 연결
 document.getElementById('connectWallet').onclick = connectWallet;
