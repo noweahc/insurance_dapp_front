@@ -170,7 +170,7 @@ async function generateInsuranceContract() {
         document.getElementById('contractResult').innerText = data.contract;
     } catch (error) {
         console.error('Error generating contract:', error);
-        document.getElementById('contractResult').innerText = '계약서 생성 중 오류가 발생했습니다.';
+        document.getElementById('contractResult').innerText = '��약서 생성 중 오류가 발생했습니다.';
     }
 }
 
@@ -187,6 +187,7 @@ async function recordCustomerDataOnBlockchain(customerData) {
         setTimeout(() => {
             console.log("블록체인에 기록 완료");
             showAlert("블록체인에 기록 완료", "success");
+            document.getElementById('claimButton').disabled = false;
         }, 2000);
     } catch (error) {
         console.error("Error recording on blockchain:", error);
@@ -207,22 +208,6 @@ function showAlert(message, type) {
     alertPlaceholder.append(alert);
 }
 
-// 버튼 클릭 시 고객 정보 블록체인 기록 함수 호출
-document.getElementById('recordButton').addEventListener('click', () => {
-    const customerData = {
-        name: "홍길동",
-        age: 30,
-        policyNumber: "123456789"
-    };
-    recordCustomerDataOnBlockchain(customerData);
-});
-
-// 버튼 클릭 이벤트 연결
-document.getElementById('connectWallet').onclick = connectWallet;
-document.getElementById('approveClaim').onclick = approveClaim;
-document.getElementById('executePayment').onclick = executePayment;
-document.getElementById('generateContract').onclick = generateInsuranceContract;
-
 // 폼 제출 시 고객 정보 블록체인 기록 함수 호출
 document.getElementById('customerForm').addEventListener('submit', (event) => {
     event.preventDefault();
@@ -233,3 +218,27 @@ document.getElementById('customerForm').addEventListener('submit', (event) => {
     };
     recordCustomerDataOnBlockchain(customerData);
 });
+
+// 보험금 청구 버튼 클릭 시
+document.getElementById('claimButton').addEventListener('click', () => {
+    showAlert("보험금 청구 요청 중...", "info");
+    document.getElementById('connectWallet').disabled = false;
+});
+
+// MetaMask 연결 버튼 클릭 시
+document.getElementById('connectWallet').addEventListener('click', () => {
+    showAlert("MetaMask 연결 중...", "info");
+    document.getElementById('payFee').disabled = false;
+});
+
+// 수수료 지불 버튼 클릭 시
+document.getElementById('payFee').addEventListener('click', () => {
+    showAlert("수수료 지불 완료", "success");
+    document.getElementById('contractResult').innerText = "청구 보고서가 작성되었습니다.";
+});
+
+// 버튼 클릭 이벤트 연결
+document.getElementById('connectWallet').onclick = connectWallet;
+document.getElementById('approveClaim').onclick = approveClaim;
+document.getElementById('executePayment').onclick = executePayment;
+document.getElementById('generateContract').onclick = generateInsuranceContract;

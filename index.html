@@ -53,8 +53,11 @@
                 <label for="policyNumber" class="form-label">보험 번호</label>
                 <input type="text" class="form-control" id="policyNumber" required>
             </div>
-            <button type="submit" class="btn btn-secondary btn-custom">블록체인에 기록</button>
+            <button type="submit" class="btn btn-secondary btn-custom">정보 입력</button>
         </form>
+        <button id="claimButton" class="btn btn-success btn-custom" disabled>보험금 청구</button>
+        <button id="connectWallet" class="btn btn-primary btn-custom" disabled>MetaMask 연결</button>
+        <button id="payFee" class="btn btn-warning btn-custom" disabled>수수료 지불</button>
         <div id="contractResult" class="mt-3">
             보험 계약서 결과가 여기에 표시됩니다.
         </div>
